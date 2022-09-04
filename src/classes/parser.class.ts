@@ -1,4 +1,4 @@
-import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode } from './../interfaces/nodes.interface';
+import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode, IfElseNode } from './../interfaces/nodes.interface';
 import { BinNode, NumNode, TreeNode } from '../interfaces/nodes.interface';
 import { TokenType } from '../enums/token-type.enum';
 import { Lexer } from './lexer.class';
@@ -10,7 +10,10 @@ export class Parser {
   constructor(private lexer: Lexer) {}
 
   eat(type: TokenType): void {
-    if (this.currentToken?.type === type) {
+    // console.log('value', this.currentToken.value);
+    // console.log('current token type', this.currentToken.type);
+    // console.log('expected token type', type);
+    if (this.currentToken.type === type) {
       this.currentToken = this.lexer.getNextToken();
       return;
     }
@@ -98,6 +101,20 @@ export class Parser {
     return new CompoundNode(nodes)
   }
 
+  ifElseStatement(): TreeNode {
+    this.eat(TokenType.IF);
+    const statement = this.term();
+    const ifBlock = this.compoundStatement();
+
+    let elseBlock;
+    if (this.currentToken.type === TokenType.ELSE) {
+      this.eat(TokenType.ELSE);
+      elseBlock = this.compoundStatement();
+    }
+
+    return new IfElseNode(statement, ifBlock, elseBlock);
+  }
+
   statement(): TreeNode {
     if (this.currentToken.type === TokenType.BEGIN) {
       return this.compoundStatement();
@@ -105,6 +122,10 @@ export class Parser {
 
     if (this.currentToken.type === TokenType.ID) {
       return this.assignmentStatement();
+    }
+
+    if (this.currentToken.type === TokenType.IF) {
+      return this.ifElseStatement();
     }
 
     return this.empty();
@@ -164,7 +185,7 @@ export class Parser {
 
   term(): TreeNode {
     let node = this.factor();
-    const priorityTypes = [TokenType.DIV, TokenType.MULT, TokenType.INTEGER_DIV];
+    const priorityTypes = [TokenType.DIV, TokenType.MULT, TokenType.INTEGER_DIV, TokenType.EQUALS];
 
     while (priorityTypes.includes(this.currentToken.type)) {
       const token = this.currentToken;

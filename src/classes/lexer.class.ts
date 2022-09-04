@@ -80,6 +80,36 @@ export class Lexer {
       return { type: TokenType.ASSIGN };
     }
 
+    if (this.text[this.pos] === '=' && this.peek() === '=') {
+      this.pos += 2;
+      return { type: TokenType.EQUALS };
+    }
+
+    if (this.text[this.pos] === '!' && this.peek() === '=') {
+      this.pos += 2;
+      return { type: TokenType.NOT_EQUALS };
+    }
+
+    if (this.text[this.pos] === '>' && this.peek() === '=') {
+      this.pos += 2;
+      return { type: TokenType.GTE };
+    }
+
+    if (this.text[this.pos] === '<' && this.peek() === '=') {
+      this.pos += 2;
+      return { type: TokenType.LTE };
+    }
+
+    if (this.text[this.pos] === '>') {
+      this.pos++;
+      return { type: TokenType.GT };
+    }
+
+    if (this.text[this.pos] === '<') {
+      this.pos++;
+      return { type: TokenType.LT };
+    }
+
     if (this.text[this.pos] === ';') {
       this.pos++;
       return { type: TokenType.SEMICOLON };

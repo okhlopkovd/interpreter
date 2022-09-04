@@ -36,6 +36,18 @@ export class BinNode implements TreeNode {
         return leftEval * rightEval;
       case TokenType.INTEGER_DIV:
         return Math.floor(leftEval / rightEval);
+      case TokenType.EQUALS:
+        return leftEval === rightEval;
+      case TokenType.NOT_EQUALS:
+        return leftEval !== rightEval;
+      case TokenType.GT:
+        return leftEval > rightEval;
+      case TokenType.GTE:
+        return leftEval >= rightEval;
+      case TokenType.LT:
+        return leftEval < rightEval;
+      case TokenType.LTE:
+        return leftEval <= rightEval;
     }
   }
 }
@@ -124,4 +136,17 @@ export class TypeNode implements TreeNode {
   constructor (private token: Token) {}
 
   evaluate() {}
+}
+
+export class IfElseNode implements TreeNode {
+
+  constructor (private statement: TreeNode, private ifBlock: TreeNode, private elseBlock?: TreeNode) {}
+
+  evaluate() {
+    if (this.statement.evaluate()) {
+      this.ifBlock.evaluate();
+    } else if (this.elseBlock) {
+      this.elseBlock.evaluate();
+    }
+  }
 }

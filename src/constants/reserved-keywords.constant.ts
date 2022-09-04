@@ -10,4 +10,6 @@ export const reserevedKeywords: { [key: string]: Token } = {
   'END': { type: TokenType.END },
   'INTEGER': { type: TokenType.INTEGER_NUM },
   'REAL': { type: TokenType.REAL },
+  'IF': { type: TokenType.IF },
+  'ELSE': { type: TokenType.ELSE }
 };

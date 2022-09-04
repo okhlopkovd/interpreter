@@ -20,4 +20,12 @@ export enum TokenType {
   COLON = ':',
   COMMA = ',',
   VAR = 'VAR',
+  IF = 'IF',
+  ELSE = 'ELSE',
+  EQUALS = 'EQUALS',
+  NOT_EQUALS = 'NOT_EQUALS',
+  LT = 'LT',
+  LTE = 'LTE',
+  GT = 'GT',
+  GTE = 'GTE'
 }
