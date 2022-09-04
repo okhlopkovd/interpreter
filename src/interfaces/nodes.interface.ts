@@ -161,3 +161,22 @@ export class WhileNode implements TreeNode {
     }
   }
 }
+
+export class ForNode implements TreeNode {
+
+  constructor (
+    private declarationStatement: TreeNode, 
+    private conditionalStatement: TreeNode,
+    private incrementStatement: TreeNode,
+    private forBlock: TreeNode
+  ) {}
+
+  evaluate() {
+    this.declarationStatement.evaluate();
+
+    while (this.conditionalStatement.evaluate()) {
+      this.forBlock.evaluate();
+      this.incrementStatement.evaluate();
+    }
+  }
+}

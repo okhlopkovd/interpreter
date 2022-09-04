@@ -1,4 +1,4 @@
-import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode, IfElseNode, WhileNode } from './../interfaces/nodes.interface';
+import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode, IfElseNode, WhileNode, ForNode } from './../interfaces/nodes.interface';
 import { BinNode, NumNode, TreeNode } from '../interfaces/nodes.interface';
 import { TokenType } from '../enums/token-type.enum';
 import { Lexer } from './lexer.class';
@@ -10,9 +10,6 @@ export class Parser {
   constructor(private lexer: Lexer) {}
 
   eat(type: TokenType): void {
-    // console.log('value', this.currentToken.value);
-    // console.log('current token type', this.currentToken.type);
-    // console.log('expected token type', type);
     if (this.currentToken.type === type) {
       this.currentToken = this.lexer.getNextToken();
       return;
@@ -122,6 +119,18 @@ export class Parser {
     return new WhileNode(statement, whileBlock);
   }
 
+  forStatement(): TreeNode {
+    this.eat(TokenType.FOR);
+    const declarationStatement = this.assignmentStatement();
+    this.eat(TokenType.SEMICOLON);
+    const conditionalStatement = this.term();
+    this.eat(TokenType.SEMICOLON);
+    const incrementStatement = this.assignmentStatement();
+    const forBlock = this.compoundStatement();
+
+    return new ForNode(declarationStatement, conditionalStatement, incrementStatement, forBlock);
+  }
+
   statement(): TreeNode {
     if (this.currentToken.type === TokenType.BEGIN) {
       return this.compoundStatement();
@@ -137,6 +146,10 @@ export class Parser {
 
     if (this.currentToken.type === TokenType.WHILE) {
       return this.whileStatement();
+    }
+
+    if (this.currentToken.type === TokenType.FOR) {
+      return this.forStatement();
     }
 
     return this.empty();

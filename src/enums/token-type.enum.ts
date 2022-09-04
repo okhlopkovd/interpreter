@@ -29,4 +29,5 @@ export enum TokenType {
   GT = 'GT',
   GTE = 'GTE',
   WHILE = 'WHILE',
+  FOR = 'FOR',
 }

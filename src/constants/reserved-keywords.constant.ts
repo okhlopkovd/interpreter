@@ -13,4 +13,5 @@ export const reserevedKeywords: { [key: string]: Token } = {
   'IF': { type: TokenType.IF },
   'ELSE': { type: TokenType.ELSE },
   'WHILE': { type: TokenType.WHILE },
+  'FOR': { type: TokenType.FOR },
 };

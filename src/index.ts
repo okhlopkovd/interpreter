@@ -10,10 +10,8 @@ VAR
    y    : REAL;
 
 BEGIN
-   a := 32;
-   WHILE a >= 40 BEGIN
+   FOR a := 1; a <= 30; a := a + 1 BEGIN
       b := a;
-      a := a + 1;
    END;
    y := 20 / 7 + 3.14;
 END.
