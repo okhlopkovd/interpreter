@@ -27,5 +27,6 @@ export enum TokenType {
   LT = 'LT',
   LTE = 'LTE',
   GT = 'GT',
-  GTE = 'GTE'
+  GTE = 'GTE',
+  WHILE = 'WHILE',
 }

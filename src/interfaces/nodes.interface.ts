@@ -150,3 +150,14 @@ export class IfElseNode implements TreeNode {
     }
   }
 }
+
+export class WhileNode implements TreeNode {
+
+  constructor (private statement: TreeNode, private whileBlock: TreeNode) {}
+
+  evaluate() {
+    while (!this.statement.evaluate()) {
+      this.whileBlock.evaluate();
+    }
+  }
+}

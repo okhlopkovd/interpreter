@@ -1,4 +1,4 @@
-import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode, IfElseNode } from './../interfaces/nodes.interface';
+import { UnaryNode, ReservedKeywordsNode, VarNode, AssignNode, CompoundNode, BlockNode, VarDeclarationNode, TypeNode, ProgramNode, IfElseNode, WhileNode } from './../interfaces/nodes.interface';
 import { BinNode, NumNode, TreeNode } from '../interfaces/nodes.interface';
 import { TokenType } from '../enums/token-type.enum';
 import { Lexer } from './lexer.class';
@@ -115,6 +115,13 @@ export class Parser {
     return new IfElseNode(statement, ifBlock, elseBlock);
   }
 
+  whileStatement(): TreeNode {
+    this.eat(TokenType.WHILE);
+    const statement = this.term();
+    const whileBlock = this.compoundStatement();
+    return new WhileNode(statement, whileBlock);
+  }
+
   statement(): TreeNode {
     if (this.currentToken.type === TokenType.BEGIN) {
       return this.compoundStatement();
@@ -126,6 +133,10 @@ export class Parser {
 
     if (this.currentToken.type === TokenType.IF) {
       return this.ifElseStatement();
+    }
+
+    if (this.currentToken.type === TokenType.WHILE) {
+      return this.whileStatement();
     }
 
     return this.empty();
@@ -185,7 +196,17 @@ export class Parser {
 
   term(): TreeNode {
     let node = this.factor();
-    const priorityTypes = [TokenType.DIV, TokenType.MULT, TokenType.INTEGER_DIV, TokenType.EQUALS];
+    const priorityTypes = [
+      TokenType.DIV, 
+      TokenType.MULT, 
+      TokenType.INTEGER_DIV, 
+      TokenType.EQUALS,
+      TokenType.NOT_EQUALS,
+      TokenType.GT,
+      TokenType.GTE,
+      TokenType.LT,
+      TokenType.LTE,
+    ];
 
     while (priorityTypes.includes(this.currentToken.type)) {
       const token = this.currentToken;

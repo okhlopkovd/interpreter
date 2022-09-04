@@ -11,13 +11,10 @@ VAR
 
 BEGIN
    a := 32;
-   b := 33;
-   IF a == b BEGIN
-      a := 35;
-   END ELSE BEGIN
-      a := 12;
+   WHILE a >= 40 BEGIN
+      b := a;
+      a := a + 1;
    END;
-   b := 10 * a + 10 * a DIV 4;
    y := 20 / 7 + 3.14;
 END.
 `;
