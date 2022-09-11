@@ -20,16 +20,14 @@ export class Parser {
 
   program(): TreeNode {
     this.eat(TokenType.PROGRAM);
-    const varNode = this.variable();
+    this.variable();
     this.eat(TokenType.SEMICOLON);
     const block = this.block();
-    return new ProgramNode('program', block);
+    return new ProgramNode(block);
   }
 
-  block(): TreeNode {
-    const declarations = this.declarations();
-    const compound = this.compoundStatement();
-    return new BlockNode(declarations, compound);
+  block(): BlockNode {
+    return new BlockNode(this.declarations(), this.compoundStatement());
   }
 
   declarations(): TreeNode[] {
@@ -65,11 +63,10 @@ export class Parser {
 
   typeSpec(): TreeNode {
     const token = this.currentToken;
-    if (token.type === TokenType.INTEGER_NUM) {
-      this.eat(TokenType.INTEGER_NUM);
-    } else {
-      this.eat(TokenType.REAL);
-    }
+
+    token.type === TokenType.INTEGER_NUM 
+      ? this.eat(TokenType.INTEGER_NUM)
+      : this.eat(TokenType.REAL);
 
     return new TypeNode(token);
   }
@@ -90,7 +87,7 @@ export class Parser {
     return results;
   }
 
-  compoundStatement(): TreeNode {
+  compoundStatement(): CompoundNode {
     this.eat(TokenType.BEGIN);
     const nodes = this.statementList();
     this.eat(TokenType.END);
@@ -114,49 +111,47 @@ export class Parser {
 
   whileStatement(): TreeNode {
     this.eat(TokenType.WHILE);
-    const statement = this.term();
-    const whileBlock = this.compoundStatement();
-    return new WhileNode(statement, whileBlock);
+    return new WhileNode(this.term(), this.compoundStatement());
   }
 
   forStatement(): TreeNode {
     this.eat(TokenType.FOR);
     const declarationStatement = this.assignmentStatement();
+
     this.eat(TokenType.SEMICOLON);
     const conditionalStatement = this.term();
+
     this.eat(TokenType.SEMICOLON);
     const incrementStatement = this.assignmentStatement();
     const forBlock = this.compoundStatement();
 
-    return new ForNode(declarationStatement, conditionalStatement, incrementStatement, forBlock);
+    return new ForNode(
+      declarationStatement, 
+      conditionalStatement, 
+      incrementStatement, 
+      forBlock
+    );
   }
 
   statement(): TreeNode {
-    if (this.currentToken.type === TokenType.BEGIN) {
-      return this.compoundStatement();
-    }
+    const typeToMap: { [key: string]: () => TreeNode } = {
+      [TokenType.BEGIN]: this.compoundStatement.bind(this),
+      [TokenType.ID]: this.assignmentStatement.bind(this),
+      [TokenType.IF]: this.ifElseStatement.bind(this),
+      [TokenType.WHILE]: this.whileStatement.bind(this),
+      [TokenType.FOR]: this.forStatement.bind(this),
+    };
 
-    if (this.currentToken.type === TokenType.ID) {
-      return this.assignmentStatement();
-    }
-
-    if (this.currentToken.type === TokenType.IF) {
-      return this.ifElseStatement();
-    }
-
-    if (this.currentToken.type === TokenType.WHILE) {
-      return this.whileStatement();
-    }
-
-    if (this.currentToken.type === TokenType.FOR) {
-      return this.forStatement();
+    if (typeToMap[this.currentToken.type]) {
+      return typeToMap[this.currentToken.type]();
     }
 
     return this.empty();
   }
 
-  assignmentStatement(): TreeNode {
+  assignmentStatement(): AssignNode {
     const token = this.currentToken;
+    
     this.variable();
     this.eat(TokenType.ASSIGN);
 
@@ -179,31 +174,29 @@ export class Parser {
   factor(): TreeNode {
     const token = this.currentToken;
 
-    if (token.type === TokenType.INTEGER) {
-      this.eat(TokenType.INTEGER);
-      return new NumNode(token); 
-    } else if (token.type === TokenType.PLUS) {
-      this.eat(TokenType.PLUS);
-      const node = new UnaryNode(token, this.factor()); 
-      return node;
-    } else if (token.type === TokenType.MINUS) {
-      this.eat(TokenType.MINUS);
-      const node = new UnaryNode(token, this.factor()); 
-      return node;
-    } else if (token.type === TokenType.LPAREN) {
-      this.eat(TokenType.LPAREN);
-      const node = this.expr();
-      this.eat(TokenType.RPAREN);
-      return node;
-    } else if (token.type === TokenType.INTEGER_NUM) {
-      this.eat(TokenType.INTEGER_NUM);
-      return new NumNode(token);
-    } else if (token.type === TokenType.REAL) {
-      this.eat(TokenType.REAL);
-      return new NumNode(token);
-    } else {
-      const node = this.variable();
-      return node;
+    switch (token.type) {
+      case TokenType.INTEGER:
+        this.eat(TokenType.INTEGER);
+        return new NumNode(token);
+      case TokenType.PLUS:
+        this.eat(TokenType.PLUS);
+        return new UnaryNode(token, this.factor());
+      case TokenType.MINUS:
+        this.eat(TokenType.MINUS);
+        return new UnaryNode(token, this.factor());
+      case TokenType.LPAREN:
+        this.eat(TokenType.LPAREN);
+        const node = this.expr();
+        this.eat(TokenType.RPAREN);
+        return node;
+      case TokenType.INTEGER_NUM:
+        this.eat(TokenType.INTEGER_NUM);
+        return new NumNode(token);
+      case TokenType.REAL:
+        this.eat(TokenType.REAL);
+        return new NumNode(token);
+      default:
+        return this.variable();
     }
   }
 
@@ -244,7 +237,6 @@ export class Parser {
   }
 
   parse(): TreeNode {
-    const node = this.program();
-    return node;
+    return this.program();
   }
 }

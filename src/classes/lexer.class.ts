@@ -13,6 +13,17 @@ export class Lexer {
   private isWhitespace = (value: string) => /^\s*$/.test(value);
   private isNumberOrLetter = (value: string) => this.isLetter(value) || this.isNumber(value);
 
+  private getNumberString(): string {
+    let result = '';
+
+    while (this.pos < this.text.length && this.isNumber(this.text[this.pos])) {
+      result += this.text[this.pos];
+      this.pos++;
+    }
+
+    return result;
+  }
+
   peek(): string | null {
     return this.pos + 1 > this.text.length - 1 ? null : this.text[this.pos + 1];
   }
@@ -31,21 +42,13 @@ export class Lexer {
   }
 
   getFullNumber(): Token {
-    let result = '';
-    while (this.pos < this.text.length && this.isNumber(this.text[this.pos])) {
-      result += this.text[this.pos];
-      this.pos++;
-    }
+    let result = this.getNumberString();
 
     if (this.text[this.pos] === '.') {
       result += this.text[this.pos];
       this.pos++;
 
-      while (this.pos < this.text.length && this.isNumber(this.text[this.pos])) {
-        result += this.text[this.pos];
-        this.pos++;
-      }
-
+      result += this.getNumberString();
       return { type: TokenType.REAL,  value: parseFloat(result) };
     }
 

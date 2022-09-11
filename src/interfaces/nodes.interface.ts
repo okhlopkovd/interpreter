@@ -107,7 +107,7 @@ export class ReservedKeywordsNode implements TreeNode {
 
 export class ProgramNode implements TreeNode {
 
-  constructor (private name: string, private block: TreeNode) {}
+  constructor (private block: BlockNode) {}
 
   evaluate() {
     this.block.evaluate();
@@ -116,7 +116,7 @@ export class ProgramNode implements TreeNode {
 
 export class BlockNode implements TreeNode {
 
-  constructor (private declarations: TreeNode[], private compound: TreeNode) {}
+  constructor (private declarations: TreeNode[], private compound: CompoundNode) {}
 
   evaluate() {
     this.declarations.forEach(declaration => declaration.evaluate());
@@ -140,7 +140,7 @@ export class TypeNode implements TreeNode {
 
 export class IfElseNode implements TreeNode {
 
-  constructor (private statement: TreeNode, private ifBlock: TreeNode, private elseBlock?: TreeNode) {}
+  constructor (private statement: TreeNode, private ifBlock: CompoundNode, private elseBlock?: CompoundNode) {}
 
   evaluate() {
     if (this.statement.evaluate()) {
@@ -153,7 +153,7 @@ export class IfElseNode implements TreeNode {
 
 export class WhileNode implements TreeNode {
 
-  constructor (private statement: TreeNode, private whileBlock: TreeNode) {}
+  constructor (private statement: TreeNode, private whileBlock: CompoundNode) {}
 
   evaluate() {
     while (!this.statement.evaluate()) {
@@ -165,10 +165,10 @@ export class WhileNode implements TreeNode {
 export class ForNode implements TreeNode {
 
   constructor (
-    private declarationStatement: TreeNode, 
+    private declarationStatement: AssignNode, 
     private conditionalStatement: TreeNode,
-    private incrementStatement: TreeNode,
-    private forBlock: TreeNode
+    private incrementStatement: AssignNode,
+    private forBlock: CompoundNode
   ) {}
 
   evaluate() {
